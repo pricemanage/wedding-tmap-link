@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>티맵 길안내</title>
+<style>
+  :root{
+    --bg:#faf6f0; --card:#ffffff; --text:#2b2320; --sub:#6b5f56; --line:#e6ddd2;
+    --accent:#7a2331; --accent-fill:#7a2331; --on-fill:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1b1517; --card:#261f21; --text:#f1e9e4; --sub:#bcaea7; --line:#3d3336;
+      --accent:#e7a1ac; --accent-fill:#8f2c3c; --on-fill:#ffffff;
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Apple SD Gothic Neo','Malgun Gothic','Pretendard',sans-serif;
+    font-size:18px;
+    line-height:1.55;
+    word-break:keep-all;
+    padding:40px 16px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+  main{
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:28px 20px;
+    text-align:center;
+  }
+  h1{font-size:24px;margin:0 0 6px;color:var(--accent);}
+  .dest{margin:0 0 22px;font-weight:700;}
+  .dest small{display:block;font-weight:400;color:var(--sub);font-size:15px;margin-top:4px;}
+  .go{
+    display:block;
+    padding:16px;
+    border-radius:14px;
+    background:var(--accent-fill);
+    color:var(--on-fill);
+    font-size:20px;
+    font-weight:800;
+    text-decoration:none;
+  }
+  .hint{font-size:15px;color:var(--sub);margin:12px 0 18px;}
+  .copy{
+    width:100%;
+    padding:12px;
+    border:1.5px solid var(--accent);
+    border-radius:12px;
+    background:transparent;
+    color:var(--accent);
+    font:inherit;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .noapp{
+    display:none;
+    margin:0 0 16px;
+    padding:12px;
+    border-radius:12px;
+    background:var(--bg);
+    font-size:15px;
+  }
+  .noapp.show{display:block;}
+</style>
+</head>
+<body>
+<main>
+  <h1>티맵 길안내</h1>
+  <p class="dest">메리다웨딩컨벤션<small>충청북도 청주시 청원구 내수읍 충청대로 400</small></p>
+
+  <p class="noapp" id="noapp">티맵 앱이 없는 것 같아요.<br>앱스토어나 플레이스토어에서<br>'티맵'을 설치한 뒤 다시 눌러 주세요.</p>
+
+  <a class="go" id="go" href="#">티맵으로 길안내 시작</a>
+  <p class="hint">티맵이 저절로 열리지 않으면<br>위 버튼을 눌러 주세요.</p>
+
+  <button type="button" class="copy" id="copy">주소 복사</button>
+</main>
+
+<script>
+  (function () {
+    var NAME = '메리다웨딩컨벤션';
+    var LON = '127.510840';
+    var LAT = '36.687239';
+    var ADDRESS = '충청북도 청주시 청원구 내수읍 충청대로 400';
+
+    var n = encodeURIComponent(NAME);
+    // goal* 는 안드로이드 방식, rGo* 는 아이폰 방식 (둘 다 넣어 두면 양쪽에서 동작)
+    var query = 'goalname=' + n + '&goalx=' + LON + '&goaly=' + LAT +
+                '&rGoName=' + n + '&rGoX=' + LON + '&rGoY=' + LAT;
+    var here = location.href.split('#')[0];
+    var url;
+    if (/Android/i.test(navigator.userAgent)) {
+      // 안드로이드: 앱이 없으면 이 페이지(#noapp)로 돌아와 설치 안내를 보여 줌
+      url = 'intent://route?' + query +
+            '#Intent;scheme=tmap;package=com.skt.tmap.ku;S.browser_fallback_url=' +
+            encodeURIComponent(here + '#noapp') + ';end';
+    } else {
+      url = 'tmap://route?' + query;
+    }
+
+    var go = document.getElementById('go');
+    go.href = url;
+
+    if (location.hash === '#noapp') {
+      document.getElementById('noapp').classList.add('show');
+    } else {
+      setTimeout(function () { location.href = url; }, 300);
+    }
+
+    var copy = document.getElementById('copy');
+    copy.addEventListener('click', function () {
+      function done() { copy.textContent = '복사됐어요 ✓'; setTimeout(function () { copy.textContent = '주소 복사'; }, 2500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ADDRESS).then(done, function () { copy.textContent = ADDRESS; });
+      } else {
+        copy.textContent = ADDRESS;
+      }
+    });
+  })();
+</script>
+</body>
+</html>
